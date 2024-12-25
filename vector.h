@@ -1,6 +1,8 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include "utility.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -45,6 +47,10 @@ class vec3 {
 
     double length_squared() const {
         return e[0]*e[0] + e[1]*e[1] + e[2]*e[2];
+    }
+
+    static vec3 random(double min, double max) {
+    	return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
     }
 };
 
@@ -92,6 +98,24 @@ inline vec3 cross(const vec3& u, const vec3& v) {
 
 inline vec3 unit_vector(const vec3& v) {
     return v / v.length();
+}
+
+inline vec3 random_unit_vector() {
+	while(true) {
+		vec3 v = vec3::random(-1, 1);
+		auto lensq = v.length_squared();
+		if(1e-160 < lensq && lensq <=1) {
+			return v / sqrt(lensq);
+		}
+	}
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal) {
+	vec3 unit_vec = random_unit_vector();
+	if(dot(unit_vec, normal) > 0.0) {
+		return unit_vec;
+	}
+	return -unit_vec;
 }
 
 // Colors, Points
