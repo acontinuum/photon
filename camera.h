@@ -6,11 +6,14 @@
 
 #include "hittable.h"
 #include "progress.h"
+#include "material.h"
 
 class camera {
 	public:
 		int image_width = 320;
 		int image_height = 160;
+		double fov = 90;
+		
 		int samples = 3;
 		int bounces = 3;
 		int total_pixels;
@@ -47,7 +50,7 @@ class camera {
 		 
 		    std::cout <<  "Elapsed time: " << elapsed_seconds.count() << "s"<< std::endl;
 			
-			render.saveImage("Render2.png");}
+			render.saveImage("Render.png");}
 			
 	private:
 		double aspect_ratio;
@@ -62,8 +65,11 @@ class camera {
 			aspect_ratio = image_width/image_height;
 
 			auto focal_length = 1.0;
+
+			auto theta = degrees_to_radians(fov);
+			auto h = std::tan(theta/2);
 			
-			auto viewport_height = 2;
+			auto viewport_height = 2 * h * focal_length;
 			auto viewport_width = viewport_height * aspect_ratio;
 
 			point camera_position = point(0, 0, 0);
@@ -85,8 +91,11 @@ class camera {
 			hit_record rec;
 			
 		    if (world.hit(r, interval(0.001, infinity), rec)) {
-				vec3 direction = rec.normal + random_unit_vector();
-				return 0.5*ray_color(ray(rec.p, direction), bounces_left - 1, world);
+				ray scattered;
+				color attenuation;
+				if (rec.mat ->scatter(r, rec, attenuation, scattered))
+					return attenuation * ray_color(scattered, bounces_left-1, world);
+				return color(0, 0, 0);
 		    }
     
 			vec3 unit_dir = unit_vector(r.direction());

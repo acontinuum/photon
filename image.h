@@ -12,10 +12,7 @@
 inline double linear_to_gamma(double linear_component)
 {
     if (linear_component > 0)
-    	std::cout<< linear_compon
-        return std::sqrt(linear_component);
-
-	std::cout << "returning 0" <<std::endl;
+    	return std::sqrt(linear_component);
     return 0;
 }
 
@@ -45,11 +42,10 @@ class image {
 	   
 	    void addPixel(int x, int y, color c) {
 	    	static const interval intensity(0.000, 0.999);
-	    	//std::cout << c.x() << std::endl;
-	        if (x >= 0 && x < width && y >= 0 && y < height) { // Check bounds, then write color value to uint_8t in list
-	            data_ptr[(y * width + x) * 3] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.x())* 256)); // The int to write to is shifted by row, then x value, then r g and b of color.
-	            data_ptr[(y * width + x) * 3 + 1] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.y()) * 256));
-	            data_ptr[(y * width + x) * 3 + 2] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.z()) * 256));
+	    	if (x >= 0 && x < width && y >= 0 && y < height) { // Check bounds, then write color value to uint_8t in list
+	            data_ptr[(y * width + x) * 3] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.x())) * 256); // The int to write to is shifted by row, then x value, then r g and b of color.
+	            data_ptr[(y * width + x) * 3 + 1] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.y())) * 256);
+	            data_ptr[(y * width + x) * 3 + 2] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.z())) * 256);
 	        } else {
 	            std::cout << "ERROR - Pixel out of bounds." << std::endl;
 	        }

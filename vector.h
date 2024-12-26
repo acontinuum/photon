@@ -52,6 +52,11 @@ class vec3 {
     static vec3 random(double min, double max) {
     	return vec3(random_double(min, max), random_double(min, max), random_double(min, max));
     }
+
+    bool near_zero() const {
+    	auto s = 1e-8;
+    	return (std::fabs(e[0]) < s) && (std::fabs(e[1]) < s) && (std::fabs(e[2]) < s);
+    }
 };
 
 // Vector Utility Functions
@@ -116,6 +121,17 @@ inline vec3 random_on_hemisphere(const vec3& normal) {
 		return unit_vec;
 	}
 	return -unit_vec;
+}
+
+inline vec3 reflect(const vec3& v, const vec3& n) { // Compute reflected ray from normal and input vector
+    return v - 2*dot(v,n)*n;
+}
+
+inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    auto cos_theta = std::fmin(dot(-uv, n), 1.0);
+    vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
+    vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
+    return r_out_perp + r_out_parallel; // Equation wizardry, review equation TODO.
 }
 
 // Colors, Points

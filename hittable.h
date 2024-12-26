@@ -1,10 +1,13 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+class material;
+
 class hit_record {
 	public:
 		point p;
 		vec3 normal;
+		shared_ptr<material> mat;
 		double t;
 		bool front_face;
 		// Compute if outward normal means ray is hitting a front face or not.
