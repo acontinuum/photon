@@ -1,5 +1,5 @@
 #include <iostream>
-#include "utility.h"
+#include "lib/utility.h"
 
 int main() {
 	// Scene Settings
