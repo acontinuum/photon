@@ -1,8 +1,6 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "material.h"
-
 class material {
 	public:
 		virtual ~material() = default; // Deconstructor

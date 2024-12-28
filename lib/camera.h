@@ -2,7 +2,8 @@
 #define CAMERA_H
 
 #include <chrono>
-#include <ctime>  
+#include <ctime> 
+#include <iostream>
 
 #include "hittable.h"
 #include "progress.h"
@@ -10,13 +11,13 @@
 
 class camera {
 	public:
-		int image_width = 320;
-		int image_height = 160;
+		int image_width = 400;
+		int image_height = 200;
 		
-		double fov = 30;
+		double fov = 90;
 
-		double defocus_angle = 10;
-		double focal_distance = 3.4;
+		double defocus_angle = 0;
+		double focal_distance = 1;
 
 		vec3 vup = vec3(0, 1, 0);
 		point camera_position;
@@ -112,6 +113,7 @@ class camera {
 				color attenuation;
 				if (rec.mat ->scatter(r, rec, attenuation, scattered))
 					return attenuation * ray_color(scattered, bounces_left-1, world);
+				std::cout << "scatter failed" <<std::endl;
 				return color(0, 0, 0);
 		    }
     
