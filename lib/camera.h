@@ -34,11 +34,7 @@ class camera {
 			auto start = std::chrono::system_clock::now();
 
 			for (int j = 0; j < image_height; j++) {
-		        for (int i = 0; i < image_width; i++) {
-		            auto pixel_position = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-					auto ray_direction = pixel_position - camera_position;
-					ray r(camera_position, ray_direction);
-					
+		        for (int i = 0; i < image_width; i++) {					
 					color pixel_color = color(0, 0, 0);
 
 					for(int n = 0; n < samples; n++) {
@@ -50,6 +46,7 @@ class camera {
 		            bar.update(float((j*image_width + i)) / total_pixels + .01);
 		        }
 			}
+
 			bar.end();
 
 			auto end = std::chrono::system_clock::now();
@@ -59,7 +56,7 @@ class camera {
 		 
 		    std::cout <<  "Elapsed time: " << elapsed_seconds.count() << "s"<< std::endl;
 			
-			render.saveImage("Render.png");}
+			render.saveImage("RenderB.png");}
 			
 	private:
 		double aspect_ratio;
@@ -113,13 +110,10 @@ class camera {
 				color attenuation;
 				if (rec.mat ->scatter(r, rec, attenuation, scattered))
 					return attenuation * ray_color(scattered, bounces_left-1, world);
-				std::cout << "scatter failed" <<std::endl;
-				return color(0, 0, 0);
+				return rec.mat->emitted();
 		    }
     
-			vec3 unit_dir = unit_vector(r.direction());
-			auto a = .5*(unit_dir.y() + 1.0);
-			return (1 - a)*color(1, 1, 1) + a*color(.5, .7, 1);
+			return background(r);
 		}
 
 		point defocus_disk_sample() const {
@@ -141,6 +135,12 @@ class camera {
 
 		vec3 sample_square() const {
 			return vec3(random_double(-.5, .5), random_double(-.5, .5), 0);
+		}
+
+		color background(const ray& r) const {
+			vec3 unit_dir = unit_vector(r.direction());
+			auto a = .5*(unit_dir.y() + 1.0);
+			return (1 - a)*color(1, 1, 1) + a*color(.5, .7, 1);
 		}
 };
 

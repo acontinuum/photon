@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "hittable.h"
+#include "aabb.h"
 #include <vector>
 
 class scene : public hittable {
@@ -15,6 +16,7 @@ class scene : public hittable {
 
 		void add(shared_ptr<hittable> object) {
 			objects.push_back(object);
+			bbox = aabb(bbox, object->bounding_box()); // Update bounding box with current box and box of new object to check if the intervals are increased if the new object is out of bounds of the current bbox
 		}	
 
 		bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
@@ -33,6 +35,10 @@ class scene : public hittable {
 			
 			return hit_anything;
 		}
+
+		aabb bounding_box() const override { return bbox; }
+	private:
+		aabb bbox; // Top level bounding box
 };
 
 #endif

@@ -22,9 +22,17 @@ inline double deg_to_rad(double degrees) {
 }
 
 inline double random_double(double min, double max) {
-	std::random_device dev; // Random number wizardy??
+	std::random_device dev;
     std::mt19937 rng(dev());
-    std::uniform_real_distribution<double> dist(min,max); // distribution in range [1, 6]
+    std::uniform_real_distribution<double> dist(min,max);
+
+    return dist(rng);
+}
+
+inline int random_int(int min, int max) {
+	std::random_device dev;
+    std::mt19937 rng(dev());
+    std::uniform_int_distribution<int> dist(min,max);
 
     return dist(rng);
 }
@@ -41,5 +49,6 @@ inline double random_double(double min, double max) {
 #include "camera.h"
 #include "progress.h"
 #include "material.h"
+#include "bvh.h"
 
 #endif
