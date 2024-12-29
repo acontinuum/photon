@@ -51,8 +51,8 @@ int main() {
 
     cam.image_width  = 320;
 	cam.image_height = 160;
-    cam.samples = 50;
-    cam.bounces = 50;
+    cam.samples = 5;
+    cam.bounces = 5;
 
     cam.fov = 90;
     cam.camera_position = point(13,2,3);

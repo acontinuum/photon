@@ -1,5 +1,4 @@
-/*
-#ifndef TRIANGLE_H
+/*#ifndef TRIANGLE_H
 #define TRIANGLE_H
 
 #include <iostream>
@@ -9,15 +8,29 @@
 
 #include "hittable.h"
 #include "vector.h"
+#include "aabb.h"
 
 class triangle : public hittable {
     public:
-        triangle(const point& a, const point& b, const point& c, shared_ptr<material> mat) : a(a), b(b), c(c), mat(mat) {}
+        triangle(const point& a, const point& b, const point& c, shared_ptr<material> mat) : a(a), b(b), c(c), mat(mat) {
+            double x_max, y_max, z_max;
+            double x_min, y_min, z_min;
+
+            x_max = a.x() > b.x() ? a.x() : b.x() > c.x() ? b.x() : c.x();
+            y_max = a.y() > b.y() ? a.y() : b.y() > c.y() ? b.y() : c.y();
+            z_max = a.z() > b.z() ? a.z() : b.z() > c.z() ? b.z() : c.z();
+
+            x_min = a.x() < b.x() ? a.x() : b.x() < c.x() ? b.x() : c.x();
+            y_min = a.y() < b.y() ? a.y() : b.y() < c.y() ? b.y() : c.y();
+            z_min = a.z() < b.z() ? a.z() : b.z() < c.z() ? b.z() : c.z();
+            std::cout << point(x_min, y_min, z_min) << point(x_max, y_max, z_max) << std::endl;
+            bbox = aabb(point(x_min, y_min, z_min), point(x_max, y_max, z_max));
+        }
 
 		bool hit(const ray& r, interval ray_t, hit_record& rec) const override { // REFERENCE - https://courses.cs.washington.edu/courses/cse457/04sp/lectures/triangle_intersection.pdf
             // Compute triangle plane
-            vec3 outward_normal = unit_vector(cross((b - a), (c - a)));
-            double d = dot(outward_normal, a);
+            vec3 outward_normal = unit_vector(cross((b - a), (c - a))); // good
+            double d = dot(outward_normal, a); // good
 
             // Find plane intersection
             if(dot(outward_normal, r.direction()) < 0) // If the dot is 0, the ray is parallel and will never intersect.
@@ -27,20 +40,25 @@ class triangle : public hittable {
 
             // Check if intersection is not in triangle
             if(dot(cross((b - a), (q - a)), outward_normal) < 0 || dot(cross((c - b), (q - b)), outward_normal) < 0 || dot(cross((a - c), (q - c)), outward_normal) < 0) 
-                return false;
-
+                return false; 
+            //std::cout << "Triangle intersect at point q: " << q << std::endl;
             rec.t = t;
 	        rec.p = r.at(rec.t);
 			rec.set_face_normal(r, outward_normal);
 			rec.mat = mat;
+            //std::cout << "triangle intersection" <<std::endl;
 	        return true;
 		}
+
+        aabb bounding_box() const override { return bbox; }
 
     private:
         point a;
         point b;
         point c;
         shared_ptr<material> mat;
+        aabb bbox;
+        
 };
 
 std::vector<shared_ptr<triangle>> obj_to_triangles(std::string file_path, point position, shared_ptr<material> mat) {
@@ -95,5 +113,4 @@ std::vector<shared_ptr<triangle>> obj_to_triangles(std::string file_path, point 
     return triangles;
 }
 
-#endif
-*/
+#endif*/
