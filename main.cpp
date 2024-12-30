@@ -1,10 +1,7 @@
 #include <iostream>
 #include "lib/utility.h"
 
-int main() {
-	// Scene Settings
-	scene world;
-
+void load_cover_scene(scene& world, camera& cam) {
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point(0,-1000,0), 1000, ground_material));
 
@@ -43,24 +40,73 @@ int main() {
     world.add(make_shared<sphere>(point(-4, 1, 0), 1.0, material2));
 
     auto material3 = make_shared<dielectric>(1.5);
-    world.add(make_shared<sphere>(point(4, 1, 0), 1.0, material3));
-
-	world = scene(make_shared<bvh_node>(world)); // Convert world into bvh nodes
-
-    camera cam;
-
-    cam.image_width  = 320;
-	cam.image_height = 160;
-    cam.samples = 5;
-    cam.bounces = 5;
+    world.add_triangles(obj_to_triangles("monke.obj", point(4, 1, 0), material3));
 
     cam.fov = 90;
-    cam.camera_position = point(13,2,3);
-    cam.camera_direction = vec3(13,2,3);
+    cam.camera_position = point(13, 2, 3);
+    cam.camera_direction = vec3(13, 2, 3);
     cam.vup = vec3(0,1,0);
 
     cam.defocus_angle = 0.6;
     cam.focal_distance = 10.0;
+}
+
+void load_triangle_scene(scene& world, camera& cam) {
+    auto material = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    world.add(make_shared<triangle>(point(-3, 3, -4), point(3, 3, -4), point(0, -3, -4), material));
+
+    cam.fov = 90;
+    cam.camera_position = point(0, 0, 0);
+    cam.camera_direction = vec3(0, 0, 1);
+    cam.vup = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+    cam.focal_distance = 3;
+}
+
+void load_box_scene(scene& world, camera& cam) {
+    auto material = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    world.add_triangles(obj_to_triangles("boxopen.obj", point(0, 0, -4), material));
+
+    auto material1 = make_shared<diffuse_light>(color(4, 4, 4));
+    world.add(make_shared<sphere>(point(0, 0, -3.9), .5, material1));
+
+    cam.fov = 90;
+    cam.camera_position = point(0, 0, 0);
+    cam.camera_direction = vec3(0, 0, 1);
+    cam.vup = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+    cam.focal_distance = 1;
+}
+
+void load_monke_scene(scene& world, camera& cam) {
+    auto material = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    world.add_triangles(obj_to_triangles("monke.obj", point(0, 0, -4), material));
+
+    cam.fov = 90;
+    cam.camera_position = point(0, 0, 0);
+    cam.camera_direction = vec3(0, 0, 1);
+    cam.vup = vec3(0,1,0);
+
+    cam.defocus_angle = 0;
+    cam.focal_distance = 1;
+}
+
+int main() {
+	// Scene Settings
+	scene world;
+    camera cam;
+    
+    load_cover_scene(world, cam);
+
+	world = scene(make_shared<bvh_node>(world));
+    
+    // Render Settings
+    cam.image_width  = 320;
+	cam.image_height = 160;
+    cam.samples = 10;
+    cam.bounces = 10;
 
 	progress_bar bar;
 	

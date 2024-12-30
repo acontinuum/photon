@@ -56,7 +56,7 @@ class camera {
 		 
 		    std::cout <<  "Elapsed time: " << elapsed_seconds.count() << "s"<< std::endl;
 			
-			render.saveImage("RenderB.png");}
+			render.saveImage("Render.png");}
 			
 	private:
 		double aspect_ratio;

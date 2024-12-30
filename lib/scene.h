@@ -3,6 +3,7 @@
 
 #include "hittable.h"
 #include "aabb.h"
+#include "triangle.h"
 #include <vector>
 
 class scene : public hittable {
@@ -17,7 +18,14 @@ class scene : public hittable {
 		void add(shared_ptr<hittable> object) {
 			objects.push_back(object);
 			bbox = aabb(bbox, object->bounding_box()); // Update bounding box with current box and box of new object to check if the intervals are increased if the new object is out of bounds of the current bbox
-		}	
+		}
+		
+		void add_triangles(std::vector<shared_ptr<triangle>> objects) {
+			std::cout << "DEBUG - Adding " << objects.size() << " triangles." << std::endl;
+			for(int i = 0; i < objects.size(); i++) {
+				add(objects[i]);
+			}
+		}
 
 		bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
 			hit_record temp_rec;

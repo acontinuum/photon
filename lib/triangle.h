@@ -1,4 +1,4 @@
-/*#ifndef TRIANGLE_H
+#ifndef TRIANGLE_H
 #define TRIANGLE_H
 
 #include <iostream>
@@ -15,15 +15,15 @@ class triangle : public hittable {
         triangle(const point& a, const point& b, const point& c, shared_ptr<material> mat) : a(a), b(b), c(c), mat(mat) {
             double x_max, y_max, z_max;
             double x_min, y_min, z_min;
+            
+            x_max = std::max(a.x(), std::max(b.x(), c.x()));
+            y_max = std::max(a.y(), std::max(b.y(), c.y()));
+            z_max = std::max(a.z(), std::max(b.z(), c.z()));
 
-            x_max = a.x() > b.x() ? a.x() : b.x() > c.x() ? b.x() : c.x();
-            y_max = a.y() > b.y() ? a.y() : b.y() > c.y() ? b.y() : c.y();
-            z_max = a.z() > b.z() ? a.z() : b.z() > c.z() ? b.z() : c.z();
-
-            x_min = a.x() < b.x() ? a.x() : b.x() < c.x() ? b.x() : c.x();
-            y_min = a.y() < b.y() ? a.y() : b.y() < c.y() ? b.y() : c.y();
-            z_min = a.z() < b.z() ? a.z() : b.z() < c.z() ? b.z() : c.z();
-            std::cout << point(x_min, y_min, z_min) << point(x_max, y_max, z_max) << std::endl;
+            x_min= std::min(a.x(), std::min(b.x(), c.x()));
+            y_min = std::min(a.y(), std::min(b.y(), c.y()));
+            z_min = std::min(a.z(), std::min(b.z(), c.z()));
+            
             bbox = aabb(point(x_min, y_min, z_min), point(x_max, y_max, z_max));
         }
 
@@ -33,20 +33,25 @@ class triangle : public hittable {
             double d = dot(outward_normal, a); // good
 
             // Find plane intersection
-            if(dot(outward_normal, r.direction()) < 0) // If the dot is 0, the ray is parallel and will never intersect.
+            if(dot(outward_normal, r.direction()) == 0) // If the dot is 0, the ray is parallel and will never intersect.
                 return false; 
+
             float t = (d - dot(outward_normal, r.origin()))/dot(outward_normal, r.direction());
+            
+            if(!ray_t.contains(t))
+                return false;
+
             point q = r.at(t);
 
             // Check if intersection is not in triangle
             if(dot(cross((b - a), (q - a)), outward_normal) < 0 || dot(cross((c - b), (q - b)), outward_normal) < 0 || dot(cross((a - c), (q - c)), outward_normal) < 0) 
                 return false; 
-            //std::cout << "Triangle intersect at point q: " << q << std::endl;
+
             rec.t = t;
 	        rec.p = r.at(rec.t);
 			rec.set_face_normal(r, outward_normal);
 			rec.mat = mat;
-            //std::cout << "triangle intersection" <<std::endl;
+
 	        return true;
 		}
 
@@ -102,7 +107,6 @@ std::vector<shared_ptr<triangle>> obj_to_triangles(std::string file_path, point 
                         vertex_indices.push_back(token); // Split blocks into vertex references
                     }
                 }
-                std::cout << "Adding face" << "at x: " << vertices[std::stoi(vertex_indices[0]) - 1] << "x: " << vertices[std::stoi(vertex_indices[3]) - 1] << "x: " << vertices[std::stoi(vertex_indices[6]) - 1] << std::endl;
                 triangles.push_back(make_shared<triangle>(vertices[std::stoi(vertex_indices[0]) - 1], vertices[std::stoi(vertex_indices[3]) - 1], vertices[std::stoi(vertex_indices[6]) - 1], mat)); // Create a triangle with vertex's defined by the indices for position.
             }
         }
@@ -113,4 +117,4 @@ std::vector<shared_ptr<triangle>> obj_to_triangles(std::string file_path, point 
     return triangles;
 }
 
-#endif*/
+#endif

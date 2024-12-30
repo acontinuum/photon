@@ -16,6 +16,19 @@ class aabb {
             x = (a[0] <= b[0]) ? interval(a[0], b[0]) : interval(b[0], a[0]); // Find smaller value and set interval based off that
             y = (a[1] <= b[1]) ? interval(a[1], b[1]) : interval(b[1], a[1]);
             z = (a[2] <= b[2]) ? interval(a[2], b[2]) : interval(b[2], a[2]);
+
+            if(x.size() < .001) { // Make sure that a bbox axis with width 0 isnt created
+                x = x.expand(.01);
+            }
+
+            if(y.size() < .001) {
+                y = y.expand(.01);
+            }
+            
+            if(z.size() < .001) {
+                z = z.expand(.01);
+            }
+            //std::cout << "(" << x.min << ", " << x.max << ") (" << y.min << ", "<< y.max << ") (" << z.min << ", "<< z.max << ")" << std::endl;
         }
 
         aabb(const aabb& a, const aabb& b) {
@@ -65,7 +78,7 @@ class aabb {
         static const aabb empty, universe;
 };
 
-const aabb aabb::empty = aabb(interval::empty,    interval::empty,    interval::empty);
+const aabb aabb::empty = aabb(interval::empty, interval::empty, interval::empty);
 const aabb aabb::universe = aabb(interval::universe, interval::universe, interval::universe);
 
 #endif
