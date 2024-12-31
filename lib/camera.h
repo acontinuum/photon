@@ -4,10 +4,13 @@
 #include <chrono>
 #include <ctime> 
 #include <iostream>
+#include <thread>
 
 #include "hittable.h"
 #include "progress.h"
 #include "material.h"
+
+
 
 class camera {
 	public:
@@ -20,34 +23,39 @@ class camera {
 		double focal_distance = 1;
 
 		vec3 vup = vec3(0, 1, 0);
-		point camera_position;
-		vec3 camera_direction;
+		point camera_position = point(0, 0, 0);
+		vec3 camera_direction = point(0, 0, 1);
 		
 		int samples = 1;
 		int bounces = 1;
 		int total_pixels;
 		
-		void render(const hittable& world, progress_bar bar) {
+		void render(const hittable& world, progress_bar bar, int thread_axis_size) {
 			initialize();
-						
+
+			int x_count = image_width/thread_axis_size; // Number of chunks along x axis
+			int y_count = image_height/thread_axis_size; // Number of chunks along y axis
+
 			image render(image_width, image_height);
 			auto start = std::chrono::system_clock::now();
+			std::vector<std::thread> threads;
+			for(int j = 0; j < y_count; j++) { 
+				for(int i = 0; i < x_count; i++) {
+					int x_start = thread_axis_size * i ;
+					int y_start = thread_axis_size * j;
+					int x_end = x_start + thread_axis_size - 1;
+					int y_end = y_start + thread_axis_size - 1;
+					std::cout << "Creating thread from x:" << x_start << " ->" << x_end << "and y:" << y_start << "->" << y_end << std::endl;
 
-			for (int j = 0; j < image_height; j++) {
-		        for (int i = 0; i < image_width; i++) {					
-					color pixel_color = color(0, 0, 0);
-
-					for(int n = 0; n < samples; n++) {
-						ray r = get_ray(i, j);
-						pixel_color += ray_color(r, bounces, world);
-					}
-					
-		            render.addPixel(i, j, pixel_color/samples);
-		            bar.update(float((j*image_width + i)) / total_pixels + .01);
-		        }
+					threads.emplace_back([this, x_start, x_end, y_start, y_end, &render, &world]() {
+                this->render_chunk(x_start, x_end, y_start, y_end, render, world);
+					});
+				}
 			}
 
-			bar.end();
+			for (auto& t : threads) {
+				t.join();
+			}
 
 			auto end = std::chrono::system_clock::now();
 			 
@@ -56,7 +64,8 @@ class camera {
 		 
 		    std::cout <<  "Elapsed time: " << elapsed_seconds.count() << "s"<< std::endl;
 			
-			render.saveImage("Render.png");}
+			render.saveImage("Multithread.png");
+		}
 			
 	private:
 		double aspect_ratio;
@@ -112,7 +121,7 @@ class camera {
 					return attenuation * ray_color(scattered, bounces_left-1, world);
 				return rec.mat->emitted();
 		    }
-    
+
 			return background(r);
 		}
 
@@ -138,9 +147,28 @@ class camera {
 		}
 
 		color background(const ray& r) const {
+			
 			vec3 unit_dir = unit_vector(r.direction());
 			auto a = .5*(unit_dir.y() + 1.0);
-			return (1 - a)*color(1, 1, 1) + a*color(.5, .7, 1);
+			return (1 - a)*color(1, 1, 1) + a*color(.5, .7, 1); 
+			//return color(0, 0, 0);
+		}
+
+		void render_chunk(int x_start, int x_end, int y_start, int y_end, image& render, const hittable& world) {
+			for (int j = y_start; j <= y_end; j++) {
+				for (int i = x_start; i <= x_end; i++) {					
+					color pixel_color = color(0, 0, 0);
+
+					for(int n = 0; n < samples; n++) {
+						ray r = get_ray(i, j);
+						pixel_color += ray_color(r, bounces, world);
+					}
+					
+					render.addPixel(i, j, pixel_color/samples);
+				}
+			}
+
+			std::cout << "Chunk rendered" << std::endl;
 		}
 };
 

@@ -47,7 +47,7 @@ class image {
 	            data_ptr[(y * width + x) * 3 + 1] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.y())) * 256);
 	            data_ptr[(y * width + x) * 3 + 2] = static_cast<uint8_t>(intensity.clamp(linear_to_gamma(c.z())) * 256);
 	        } else {
-	            std::cout << "ERROR - Pixel out of bounds." << std::endl;
+	            std::cout << "ERROR - Pixel "<< x << ", " << y << " out of bounds." << std::endl;
 	        }
 	    }
 

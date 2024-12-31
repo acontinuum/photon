@@ -50,5 +50,6 @@ inline int random_int(int min, int max) {
 #include "progress.h"
 #include "material.h"
 #include "bvh.h"
+#include "constant_medium.h"
 
 #endif

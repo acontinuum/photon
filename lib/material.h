@@ -49,9 +49,10 @@ class metal : public material {
 class dielectric : public material {
 	public:
 		dielectric(double refraction_index) : refraction_index(refraction_index) {}
+		dielectric(double refraction_index, color tint) : refraction_index(refraction_index), tint(tint){}
 
 		bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered) const override {
-			attenuation = color(1, 1, 1);
+			attenuation = tint;
 			double ri = rec.front_face ? (1/refraction_index) : refraction_index; // TODO ?
 
 			vec3 unit_direction = unit_vector(r_in.direction());
@@ -75,7 +76,7 @@ class dielectric : public material {
 		
 	private:
 		double refraction_index; // Ratio of material to media material is in. IE air, water, vacuum.
-	
+		color tint;
 		static double reflectance(double cosine, double refraction_index) {
 		    // Use Schlick's approximation for reflectance.
 		    auto r0 = (1 - refraction_index) / (1 + refraction_index);
@@ -98,6 +99,21 @@ class diffuse_light : public material {
 
 	private:
 		color emit;
+};
+
+class isotropic : public material {
+  public:
+    isotropic(const color& albedo) : albedo(albedo) {}
+
+    bool scatter(const ray& r_in, const hit_record& rec, color& attenuation, ray& scattered)
+    const override {
+        scattered = ray(rec.p, random_unit_vector());
+        attenuation = albedo;
+        return true;
+    }
+
+  private:
+    color albedo;
 };
 
 
