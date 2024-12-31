@@ -30,21 +30,21 @@ class camera {
 		int bounces = 1;
 		int total_pixels;
 		
-		void render(const hittable& world, progress_bar bar, int thread_axis_size) {
+		void render(const hittable& world, progress_bar bar, int thread_axis_size_x, int thread_axis_size_y) {
 			initialize();
 
-			int x_count = image_width/thread_axis_size; // Number of chunks along x axis
-			int y_count = image_height/thread_axis_size; // Number of chunks along y axis
+			int x_count = image_width/thread_axis_size_x; // Number of chunks along x axis
+			int y_count = image_height/thread_axis_size_y; // Number of chunks along y axis
 
 			image render(image_width, image_height);
 			auto start = std::chrono::system_clock::now();
 			std::vector<std::thread> threads;
 			for(int j = 0; j < y_count; j++) { 
 				for(int i = 0; i < x_count; i++) {
-					int x_start = thread_axis_size * i ;
-					int y_start = thread_axis_size * j;
-					int x_end = x_start + thread_axis_size - 1;
-					int y_end = y_start + thread_axis_size - 1;
+					int x_start = thread_axis_size_x * i ;
+					int y_start = thread_axis_size_y * j;
+					int x_end = x_start + thread_axis_size_x - 1;
+					int y_end = y_start + thread_axis_size_y - 1;
 					std::cout << "Creating thread from x:" << x_start << " ->" << x_end << "and y:" << y_start << "->" << y_end << std::endl;
 
 					threads.emplace_back([this, x_start, x_end, y_start, y_end, &render, &world]() {

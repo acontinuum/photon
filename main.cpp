@@ -127,17 +127,17 @@ int main() {
 	scene world;  
     camera cam;
     
-    load_cover_scene(world, cam);
+    load_dragon_scene(world, cam);
 
 	world = scene(make_shared<bvh_node>(world));
     
     // Render Settings
     cam.image_width  = 320;
 	cam.image_height = 160;
-    cam.samples = 50;
+    cam.samples = 10;
     cam.bounces = 10;
 
 	progress_bar bar;
 	
-	cam.render(world, bar, 8);
+	cam.render(world, bar, 160, 320);
 }
