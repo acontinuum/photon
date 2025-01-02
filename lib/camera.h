@@ -14,8 +14,8 @@
 
 class camera {
 	public:
-		int image_width = 400;
-		int image_height = 200;
+		int image_width = 320;
+		int image_height = 180;
 		
 		double fov = 90;
 
@@ -32,12 +32,18 @@ class camera {
 		
 		void render(const hittable& world, progress_bar bar, int thread_axis_size_x, int thread_axis_size_y) {
 			initialize();
+			if(thread_axis_size_x > image_width || thread_axis_size_y > image_height || image_width % thread_axis_size_x != 0 || image_height % thread_axis_size_y != 0) {
+				std::cout << "ERROR - Invalid thread sizing." << std::endl;
+				return;
+			}
 
 			int x_count = image_width/thread_axis_size_x; // Number of chunks along x axis
 			int y_count = image_height/thread_axis_size_y; // Number of chunks along y axis
 
 			image render(image_width, image_height);
 			auto start = std::chrono::system_clock::now();
+			int pixels_rendered;
+
 			std::vector<std::thread> threads;
 			for(int j = 0; j < y_count; j++) { 
 				for(int i = 0; i < x_count; i++) {
@@ -45,10 +51,10 @@ class camera {
 					int y_start = thread_axis_size_y * j;
 					int x_end = x_start + thread_axis_size_x - 1;
 					int y_end = y_start + thread_axis_size_y - 1;
-					std::cout << "Creating thread from x:" << x_start << " ->" << x_end << "and y:" << y_start << "->" << y_end << std::endl;
+					std::cout << "Creating thread from x: " << x_start << "->" << x_end << "and y: " << y_start << "->" << y_end << std::endl;
 
 					threads.emplace_back([this, x_start, x_end, y_start, y_end, &render, &world]() {
-                this->render_chunk(x_start, x_end, y_start, y_end, render, world);
+                		this->render_chunk(x_start, x_end, y_start, y_end, render, world);
 					});
 				}
 			}
